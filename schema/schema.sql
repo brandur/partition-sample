@@ -56,6 +56,14 @@ CREATE TABLE idempotency_key_y2019m08d15h20 PARTITION OF idempotency_key
 CREATE TABLE idempotency_key_y2019m08d16h00 PARTITION OF idempotency_key
     FOR VALUES FROM ('2019-08-16 00:00') TO ('2019-08-16 04:00');
 
+--
+-- Partitioned tables can only guarantee a UNIQUE constraint within any single
+-- partition. This function runs as a trigger on an insert in the parent table
+-- and uses an advisory lock instead to guarantee uniqueness.
+--
+-- Taken from:
+--     http://blog.ioguix.net/postgresql/2015/02/05/Partitionning-and-constraints-part-1.html
+--
 CREATE OR REPLACE FUNCTION idempotency_key_unique_account_id_content()
 RETURNS trigger
 LANGUAGE plpgsql
