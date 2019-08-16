@@ -72,10 +72,11 @@ BEGIN
   PERFORM pg_advisory_xact_lock(
     hashtext('idempotency_key_unique_' || NEW.account_id || '_' || NEW.content));
 
-  IF
-    count(1) > 1
+  IF EXISTS(
+    SELECT 1
     FROM idempotency_key
     WHERE account_id = NEW.account_id AND content = NEW.content
+  )
   THEN
     RAISE EXCEPTION 'duplicate key value violates unique constraint "%" ON "%" (partition "%")', 
       TG_NAME, 'idempotency_key', TG_TABLE_NAME
